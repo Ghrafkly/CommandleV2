@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            // PatternLayout that includes the class name
+            <PatternLayout pattern="%highlight{%-5level} %style{%d{HH:mm:ss}}{yellow} %highlight{%C{1}:%L} - %msg%n{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green bold, DEBUG=blue bold, TRACE=white bold}" disableAnsi="false"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="debug">
+            <AppenderRef ref="console" />
+        </Root>
+    </Loggers>
+</Configuration>
