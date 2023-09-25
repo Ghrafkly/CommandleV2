@@ -5,8 +5,22 @@ import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
+/**
+ * The WordGenerator class handles the logic for generating a target word for a game of Commandle
+ * A target word is defined as the word that the user is trying to guess
+ *
+ * <p>Variables defined in this class:</p>
+ * <ol>
+ *     <li>wordList - the list of words that can be used as the target word</li>
+ *     <li>sessionTargets - the list of words that have been used as a target word in the current session</li>
+ *     <li>targetWord - the word that the user is trying to guess</li>
+ * </ol>
+ */
 @Data
 public class WordGenerator {
 	private static final Logger log = LogManager.getLogger(WordGenerator.class);
@@ -36,6 +50,11 @@ public class WordGenerator {
 	}
 
 	/**
+	 * <p>Variables defined in this method:</p>
+	 * <ol>
+	 *     <li>availableWords - the list of words that have not been used as the target word in the current session</li>
+	 * </ol>
+	 *
 	 * @return A random word from the dictionary that has not been used in the session
 	 */
 	public String generateTargetWord() {
