@@ -101,15 +101,15 @@ public class Commandle {
 
 		if (gameEnd) {
 			Scanner scanner = new Scanner(System.in);
-			System.out.println("Play again? (Y/N)");
+			System.out.print("Play again? (Y/N): ");
 			String answer = scanner.nextLine().trim().toLowerCase();
 
 			if (answer.equals("y")) {
 				targetWord = wordGenerator.generateTargetWord();
 				startGame();
+			} else {
+				System.out.println("Thank you for playing Commandle!");
 			}
 		}
-
-		System.out.println("Thank you for playing Commandle!");
 	}
 }
