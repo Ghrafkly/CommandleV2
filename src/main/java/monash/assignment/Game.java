@@ -1,6 +1,8 @@
 package monash.assignment;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.*;
@@ -21,11 +23,16 @@ import java.util.*;
 @Data
 public class Game {
 	@NonNull
+	@Getter(AccessLevel.NONE)
 	private String targetWord;
 	@NonNull
+	@Getter(AccessLevel.NONE)
 	private List<String> wordList;
 	@NonNull
+	@Getter(AccessLevel.NONE)
 	private int tries;
+
+	private int round = 1;
 
 	private Set<String> guesses = new HashSet<>();
 
@@ -45,12 +52,11 @@ public class Game {
 	 * @return true if the game was completed, either by the user guessing the target word or running out of tries
 	 */
 	public boolean start() {
-		System.out.println("You have 6 tries to guess the target word.");
+		messages("start");
 		Scanner scanner = new Scanner(System.in);
 
-		int round = 1;
 		while (round <= tries) {
-			System.out.print("Please enter your guess: ");
+			messages("input");
 			String guess = scanner.nextLine().trim().toLowerCase();
 
 			while (!guessValidity(guess)) {
@@ -59,24 +65,17 @@ public class Game {
 
 			String result = checkGuess(guess);
 
-			System.out.printf("%d: %s  %d: %s\n", round, guess, round, result);
+			messages("round", String.valueOf(round), guess, result);
 
 			if (result.equals(targetWord)) {
-				System.out.println("Congratulations! You have guessed the target word!");
 				return true;
-			}
-
-			if (round == tries) {
-				System.out.printf("You have run out of tries. The target word was [%s]%n", targetWord);
 			}
 
 			round++;
 		}
 
-		guesses.clear();
-		return true;
+		return false;
 	}
-
 
 	/**
 	 * Checks if the user's guess is valid, and provides feedback if it is not.
@@ -94,11 +93,11 @@ public class Game {
 	 */
 	public boolean guessValidity(String guess) {
 		if (guess.length() != 5) {
-			System.err.print("Please enter a word of 5 letters: ");
+			messages("invalidLength");
 		} else if (guesses.contains(guess)) {
-			System.err.printf("You have already guessed [%s]. Please try again: ", guess);
+			messages("alreadyGuessed", guess);
 		} else if (!wordList.contains(guess)) {
-			System.err.printf("[%s] is not in the dictionary or is invalid. Please try again: ", guess);
+			messages("invalidGuess", guess);
 		} else {
 			guesses.add(guess);
 			return true;
@@ -128,6 +127,8 @@ public class Game {
 	public String checkGuess(String guess) {
 		StringBuilder result = new StringBuilder();
 
+		guess = guess.toLowerCase();
+
 		Map<Character, Integer> targetLetterCount = new HashMap<>();
 		for (char c : targetWord.toCharArray()) {
 			targetLetterCount.put(c, targetLetterCount.getOrDefault(c, 0) + 1);
@@ -147,5 +148,16 @@ public class Game {
 		}
 
 		return result.toString();
+	}
+
+	protected void messages(String id, String... args) {
+		switch (id) {
+			case "start" -> System.out.printf("You have %d tries to guess the target word.\n", tries);
+			case "input" -> System.out.print("Please enter your guess: ");
+			case "round" -> System.out.printf("%s: %s  %s: %s\n", args[0], args[1], args[0], args[2]);
+			case "invalidLength" -> System.err.print("Please enter a word of 5 letters: ");
+			case "invalidGuess" -> System.err.printf("[%s] is not in the dictionary or is invalid. Please try again: ", args[0]);
+			case "alreadyGuessed" -> System.err.printf("You have already guessed [%s]. Please try again: ", args[0]);
+		}
 	}
 }

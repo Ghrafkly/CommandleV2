@@ -1,6 +1,8 @@
 package monash.assignment;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,10 +28,12 @@ public class WordGenerator {
 	private static final Logger log = LogManager.getLogger(WordGenerator.class);
 
 	@NonNull
+	@Getter(AccessLevel.NONE)
 	private List<String> wordList;
 	@NonNull
+	@Getter(AccessLevel.NONE)
 	private Set<String> sessionTargets;
-
+	@Getter(AccessLevel.NONE)
 	private String targetWord;
 
 	/**
@@ -39,7 +43,7 @@ public class WordGenerator {
 	 * with {@link #generateTargetWord()}
 	 */
 	public String generateTargetWord(String word) {
-		if (sessionTargets.contains(word)) {
+		if (sessionTargets.contains(word) || word.length() != 5 || !wordList.contains(word)) {
 			log.warn(String.format("Word [%s] has already been used in this session. Another target word will be generated", word));
 			word = generateTargetWord();
 		} else {
@@ -62,4 +66,5 @@ public class WordGenerator {
 		sessionTargets.forEach(availableWords::remove);
 		return availableWords.get(new Random().nextInt(availableWords.size()));
 	}
+
 }

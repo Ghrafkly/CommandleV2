@@ -1,11 +1,14 @@
 package monash.assignment;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -30,30 +33,28 @@ public class Commandle {
 	private static final int MAX_TRIES = 6;
 
 	private String targetWord;
-	private WordGenerator wordGenerator;
-	private Game game;
 	private List<String> wordList = new ArrayList<>();
 	private Set<String> sessionTargets = new HashSet<>();
+	private Game game;
+	@Getter(AccessLevel.NONE)
+	private WordGenerator wordGenerator;
+	@Getter(AccessLevel.NONE)
+	private boolean testFlag;
 
 	/**
 	 * Method that starts the game
 	 *
 	 * @param args Argument that allows the user to specify a target word for the first game of the session
 	 */
-	public void run(String[] args) {
-		loadDictionary();
-		wordGenerator = new WordGenerator(getWordList(), sessionTargets);
+	protected void run(String[] args) {
+		if (wordGenerator == null) {
+			wordGenerator = new WordGenerator(getWordList(), sessionTargets);
+		}
 
 		if (args.length > 0) {
-			String word = args[0].trim().toLowerCase();
-			if (getWordList().contains(word)) {
-				targetWord = wordGenerator.generateTargetWord(word);
-			} else {
-				log.error(String.format("Word [%s] is not in the game dictionary. Game will now exit", word));
-			}
+			setTargetWord(args);
 		} else {
-			log.info("No word provided. Generating random target word");
-			targetWord = wordGenerator.generateTargetWord();
+			setTargetWord();
 		}
 
 		if (targetWord != null) {
@@ -63,27 +64,37 @@ public class Commandle {
 			startGame();
 		}
 
+
 		log.info("Exiting Commandle");
 	}
 
 	/**
 	 * Loads the dictionary file into wordList
 	 */
-	private void loadDictionary() {
-		try (FileReader fr = new FileReader("src/main/resources/dictionary.txt")) {
-			BufferedReader br = new BufferedReader(fr);
-			String line = br.readLine();
+	protected void loadDictionary(String filePath) throws IOException {
+		FileReader fr = new FileReader(filePath);
+		BufferedReader br = new BufferedReader(fr);
+		String line = br.readLine();
 
-			while (line != null) {
-				String word = line.trim().toLowerCase();
-				wordList.add(word);
-				line = br.readLine();
-			}
-
-			log.info("Dictionary loaded: Number of words: " + wordList.size());
-		} catch (Exception e) {
-			log.error("Error loading dictionary file", e);
+		while (line != null) {
+			String word = line.trim().toLowerCase();
+			wordList.add(word);
+			line = br.readLine();
 		}
+	}
+
+	protected void setTargetWord(String[] args) {
+		String word = args[0].trim().toLowerCase();
+		if (getWordList().contains(word)) {
+			targetWord = wordGenerator.generateTargetWord(word);
+		} else {
+			log.error(String.format("Word [%s] is not in the game dictionary. Game will now exit", word));
+		}
+	}
+
+	protected void setTargetWord() {
+		log.info("No word provided. Generating random target word");
+		targetWord = wordGenerator.generateTargetWord();
 	}
 
 	/**
@@ -95,21 +106,41 @@ public class Commandle {
 	 * user enters an invalid input, the program will exit </p>
 	 *
 	 */
-	private void startGame() {
-		game = new Game(targetWord, wordList, MAX_TRIES);
-		boolean gameEnd = game.start();
+	protected void startGame() {
+		if (game == null) {
+			game = new Game(targetWord, wordList, MAX_TRIES);
+		}
 
-		if (gameEnd) {
-			Scanner scanner = new Scanner(System.in);
-			System.out.print("Play again? (Y/N): ");
-			String answer = scanner.nextLine().trim().toLowerCase();
+		messages(game.start() ? "win" : "lose");
 
-			if (answer.equals("y")) {
-				targetWord = wordGenerator.generateTargetWord();
-				startGame();
-			} else {
-				System.out.println("Thank you for playing Commandle!");
-			}
+		if (!testFlag) {
+			playAgain();
+		}
+	}
+
+	/**
+	 * Method that prompts the user to play again
+	 */
+	protected void playAgain() {
+		Scanner scanner = new Scanner(System.in);
+		messages("again");
+		String answer = scanner.nextLine().trim().toLowerCase();
+
+		if (answer.equals("y")) {
+			game = testFlag ? game : null;
+			targetWord = wordGenerator.generateTargetWord();
+			run(new String[]{});
+		} else {
+			messages("end");
+		}
+	}
+
+	protected void messages(String id) {
+		switch (id) {
+			case "win" -> System.out.println("Congratulations! You have guessed the target word!");
+			case "lose" -> System.out.printf("You have run out of tries. The target word was [%s]%n", targetWord);
+			case "again" -> System.out.print("Play again? (Y/N): ");
+			case "end" -> System.out.println("Thank you for playing Commandle!");
 		}
 	}
 }
