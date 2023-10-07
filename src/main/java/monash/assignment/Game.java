@@ -27,7 +27,7 @@ public class Game {
 	private String targetWord;
 	@NonNull
 	@Getter(AccessLevel.NONE)
-	private List<String> wordList;
+	private List<String> dictionary;
 	@NonNull
 	@Getter(AccessLevel.NONE)
 	private int tries;
@@ -96,7 +96,7 @@ public class Game {
 			messages("invalidLength");
 		} else if (guesses.contains(guess)) {
 			messages("alreadyGuessed", guess);
-		} else if (!wordList.contains(guess)) {
+		} else if (!dictionary.contains(guess)) {
 			messages("invalidGuess", guess);
 		} else {
 			guesses.add(guess);

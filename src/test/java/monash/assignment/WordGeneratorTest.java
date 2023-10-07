@@ -15,20 +15,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class WordGeneratorTest {
 	private WordGenerator wordGenerator;
 
-	private List<String> wordList;
+	private List<String> dictionary;
 
 	private Set<String> sessionTargets;
 
 	@BeforeEach
 	public void setup() {
-		wordList = List.of("apple", "whirs", "ultra", "pears", "grape");
+		dictionary = List.of("apple", "whirs", "ultra", "pears", "grape");
 		sessionTargets = new HashSet<>();
 
-		wordGenerator = new WordGenerator(wordList, sessionTargets);
+		wordGenerator = new WordGenerator(dictionary, sessionTargets);
 	}
 
 	@Test
-	public void testGenerateTargetWord_withValidWord() {
+	public void testGenerateTargetWord_whenValidWord() {
 		// given
 		String word = "apple";
 
@@ -40,7 +40,7 @@ class WordGeneratorTest {
 	}
 
 	@Test
-	public void testGenerateTargetWord_withAlreadyUsedWord() {
+	public void testGenerateTargetWord_whenAlreadyUsedWord() {
 		// given
 		String word = "apple";
 		sessionTargets.add(word);
@@ -53,7 +53,7 @@ class WordGeneratorTest {
 	}
 
 	@Test
-	public void testGenerateTargetWord_withNoWord() {
+	public void testGenerateTargetWord_whenNoWord() {
 		// given
 		String word = "";
 
@@ -65,7 +65,7 @@ class WordGeneratorTest {
 	}
 
 	@Test
-	public void testGenerateTargetWord_withInvalidWord() {
+	public void testGenerateTargetWord_whenInvalidWord() {
 		// given
 		String word = "banana";
 
@@ -77,12 +77,11 @@ class WordGeneratorTest {
 	}
 
 	@Test
-	public void testGenerateTargetWord_withNoWordPassed() {
+	public void testGenerateTargetWord_whenNoWordPassed() {
 		// when
 		String result = wordGenerator.generateTargetWord();
 
 		// then
 		assertNotNull(result);
 	}
-
 }

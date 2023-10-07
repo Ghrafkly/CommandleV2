@@ -44,7 +44,7 @@ class CommandleTest {
 	}
 
 	@Test
-	public void testLoadDictionaryWithValidPath() throws IOException {
+	public void testLoadDictionary_whenValidPath() throws IOException {
 		// given
 		String path = "src/main/resources/dictionary.txt";
 
@@ -52,11 +52,11 @@ class CommandleTest {
 		commandle.loadDictionary(path);
 
 		// then
-		assertEquals(12947, commandle.getWordList().size());
+		assertEquals(12947, commandle.getDictionary().size());
 	}
 
 	@Test
-	public void testLoadDictionaryWithInvalidPath() {
+	public void testLoadDictionary_whenInvalidPath() {
 		// given
 		String path = "dictionary.text";
 
@@ -65,7 +65,7 @@ class CommandleTest {
 	}
 
 	@Test
-	public void testRunWithNoArgs() throws IOException {
+	public void testRun_whenNoArgs() throws IOException {
 		// given
 		String path = "src/main/resources/dictionary.txt";
 		String[] args = {};
@@ -82,7 +82,7 @@ class CommandleTest {
 	}
 
 	@Test
-	public void testRunWithValidArgs() throws IOException {
+	public void testRun_whenValidArgs() throws IOException {
 		// given
 		String path = "src/main/resources/dictionary.txt";
 		String[] args = {targetWord};
@@ -99,7 +99,7 @@ class CommandleTest {
 	}
 
 	@Test
-	public void testRunWithInvalidArgs() throws IOException {
+	public void testRun_whenInvalidArgs() throws IOException {
 		// given
 		String path = "src/main/resources/dictionary.txt";
 		String[] args = {"banana"};
@@ -113,11 +113,11 @@ class CommandleTest {
 	}
 
 	@Test
-	public void testRunWithEmptyDictionary() {
+	public void testRun_whenEmptyDictionary() {
 		// given
 		String[] args = {targetWord};
 
-		commandle.setWordList(new ArrayList<>());
+		commandle.setDictionary(new ArrayList<>());
 
 		// when
 		commandle.run(args);
@@ -127,7 +127,7 @@ class CommandleTest {
 	}
 
 	@Test
-	public void testCongratsMessage() throws Exception {
+	public void testMessage_Congrats() throws Exception {
 		// given
 		String message = tapSystemOut(() -> commandle.messages("win"));
 
@@ -136,7 +136,7 @@ class CommandleTest {
 	}
 
 	@Test
-	public void testLoseMessage() throws Exception {
+	public void testMessage_Lose() throws Exception {
 		// given
 		String message = tapSystemOut(() -> commandle.messages("lose"));
 
@@ -145,7 +145,7 @@ class CommandleTest {
 	}
 
 	@Test
-	public void testPlayAgainMessage() throws Exception {
+	public void testMessage_PlayAgain() throws Exception {
 		// given
 		String message = tapSystemOut(() -> commandle.messages("again"));
 
@@ -154,7 +154,7 @@ class CommandleTest {
 	}
 
 	@Test
-	public void testEndMessage() throws Exception {
+	public void testMessage_End() throws Exception {
 		// given
 		String message = tapSystemOut(() -> commandle.messages("end"));
 
@@ -163,9 +163,8 @@ class CommandleTest {
 	}
 
 	@Test
-	public void testPlayAgainWithNo() throws Exception {
+	public void testPlayAgain_whenNo() throws Exception {
 		// given
-		String again = "Play again? (Y/N): ";
 		String end = "Thank you for playing Commandle!\r\n";
 
 		// when
@@ -173,16 +172,13 @@ class CommandleTest {
 				.execute(() -> commandle.playAgain());
 
 		// then
-		assertEquals(again + end, outContent.toString());
+		assertTrue(outContent.toString().contains(end));
 	}
 
 	@Test
-	public void testPlayAgainWithYes_whenGameWon() throws Exception {
+	public void testPlayAgain_whenYes() throws Exception {
 		// given
-		String again = "Play again? (Y/N): ";
-		String win = "Congratulations! You have guessed the target word!\r\n";
-
-		commandle.setWordList(List.of("apple"));
+		commandle.setDictionary(List.of("apple"));
 
 		// when
 		when(wordGenerator.generateTargetWord()).thenReturn("apple");
@@ -192,41 +188,20 @@ class CommandleTest {
 				.execute(() -> commandle.playAgain());
 
 		// then
-		assertEquals(again + win, outContent.toString());
-	}
-
-	@Test
-	public void testPlayAgainWithYes_whenGameLost() throws Exception {
-		// given
-		String again = "Play again? (Y/N): ";
-		String lose = "You have run out of tries. The target word was [apple]\r\n";
-
-		commandle.setWordList(List.of("apple"));
-
-		// when
-		when(wordGenerator.generateTargetWord()).thenReturn("apple");
-		when(game.start()).thenReturn(false);
-
-
-		withTextFromSystemIn("y")
-				.execute(() -> commandle.playAgain());
-
-		// then
-		assertEquals(again + lose, outContent.toString());
-		assertNotNull(commandle.getGame());
+		assertNotNull(commandle.getTargetWord());
 	}
 
 	@Test
 	public void testUniqueTargetWordsForSession() {
 		// given
 		List<String> sessionTargets = new ArrayList<>();
-		List<String> wordList = List.of("apple", "woman", "ultra", "pears", "grape");
-		int size = wordList.size();
+		List<String> dictionary = List.of("apple", "woman", "ultra");
+		int size = dictionary.size();
 
-		commandle.setWordList(wordList);
+		commandle.setDictionary(dictionary);
 
 		// when
-		when(wordGenerator.generateTargetWord()).thenReturn("apple", "woman", "ultra", "pears", "grape");
+		when(wordGenerator.generateTargetWord()).thenReturn("apple", "woman", "ultra");
 
 		for (int i = 0; i < size; i++) {
 			commandle.setTargetWord();

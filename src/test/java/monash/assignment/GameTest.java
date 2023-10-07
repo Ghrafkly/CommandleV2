@@ -25,17 +25,17 @@ class GameTest {
 
 	private String targetWord;
 
-	private List<String> wordList;
+	private List<String> dictionary;
 
 	@BeforeEach
 	public void setup() {
 		System.setOut(new PrintStream(outContent));
 		System.setErr(new PrintStream(errContent));
 
-		wordList = List.of("apple", "whirs", "ultra", "pears", "grape");
+		dictionary = List.of("apple", "pears", "whirs", "easel", "upper", "abers", "bezel");
 		targetWord = "apple";
 
-		game = new Game(targetWord, wordList, 6);
+		game = new Game(targetWord, dictionary, 6);
 	}
 
 	@Test
@@ -54,7 +54,7 @@ class GameTest {
 	}
 
 	@Test
-	public void testGuessValidity_withValidGuess() {
+	public void testGuessValidity_whenValidGuess() {
 		// given
 		boolean result = game.guessValidity("apple");
 
@@ -64,7 +64,7 @@ class GameTest {
 	}
 
 	@Test
-	public void testGuessValidity_withInvalidLength() {
+	public void testGuessValidity_whenInvalidLength() {
 		// given
 		boolean result = game.guessValidity("banana");
 
@@ -74,7 +74,7 @@ class GameTest {
 	}
 
 	@Test
-	public void testGuessValidity_withDuplicateGuess() {
+	public void testGuessValidity_whenDuplicateGuess() {
 		// given
 		game.getGuesses().add("apple");
 		boolean result = game.guessValidity("apple");
@@ -85,7 +85,7 @@ class GameTest {
 	}
 
 	@Test
-	public void testGuessValidity_withDuplicateGuessInvalidLength() {
+	public void testGuessValidity_whenDuplicateGuessInvalidLength() {
 		// given
 		game.getGuesses().add("banana");
 		boolean result = game.guessValidity("banana");
@@ -96,7 +96,7 @@ class GameTest {
 	}
 
 	@Test
-	public void testGuessValidity_withDuplicateGuessInvalidWord() {
+	public void testGuessValidity_whenDuplicateGuessInvalidWord() {
 		// given
 		game.getGuesses().add("lapel");
 		boolean result = game.guessValidity("lapel");
@@ -107,7 +107,7 @@ class GameTest {
 	}
 
 	@Test
-	public void testGuessValidity_withInvalidGuess() {
+	public void testGuessValidity_whenInvalidGuess() {
 		// given
 		boolean result = game.guessValidity("lapel");
 
@@ -117,7 +117,7 @@ class GameTest {
 	}
 
 	@Test
-	public void testGuessValidity_withNonAlphaGuessInvalidLength() {
+	public void testGuessValidity_whenNonAlphaGuessInvalidLength() {
 		// given
 		boolean result = game.guessValidity("1234");
 
@@ -127,7 +127,7 @@ class GameTest {
 	}
 
 	@Test
-	public void testGuessValidity_withNonAlphaGuessValidLength() {
+	public void testGuessValidity_whenNonAlphaGuessValidLength() {
 		// given
 		boolean result = game.guessValidity("12345");
 
@@ -137,7 +137,7 @@ class GameTest {
 	}
 
 	@Test
-	public void testCheckGuess_withCorrectGuess() {
+	public void testCheckGuess_whenCorrectGuess() {
 		// given
 		String result = game.checkGuess("apple");
 
@@ -146,7 +146,7 @@ class GameTest {
 	}
 
 	@Test
-	public void testCheckGuess_withIncorrectGuess() {
+	public void testCheckGuess_whenIncorrectGuess() {
 		// given
 		String result = game.checkGuess("whirs");
 
@@ -155,7 +155,7 @@ class GameTest {
 	}
 
 	@Test
-	public void testCheckGuess_withPartiallyCorrectGuess() {
+	public void testCheckGuess_whenPartiallyCorrectGuess() {
 		// given
 		String result = game.checkGuess("pelpa");
 
@@ -164,7 +164,7 @@ class GameTest {
 	}
 
 	@Test
-	public void testCheckGuess_withMixedGuess() {
+	public void testCheckGuess_whenMixedGuess() {
 		// given
 		String result = game.checkGuess("grape");
 
@@ -173,7 +173,7 @@ class GameTest {
 	}
 
 	@Test
-	public void testCheckGuess_withCaseInsensitiveGuess() {
+	public void testCheckGuess_whenCaseInsensitiveGuess() {
 		// given
 		String result = game.checkGuess("ApPlE");
 
@@ -203,13 +203,12 @@ class GameTest {
 	public void testStart_canLose() throws Exception {
 		// given
 		List<Boolean> results = new ArrayList<>();
-		wordList = List.of("apple", "lapel", "whirs", "easel", "upper", "abers", "bezel");
 
-		game.setWordList(wordList);
+		game.setDictionary(dictionary);
 
 		String message = """
 				You have 6 tries to guess the target word.
-				Please enter your guess: 1: lapel  1: ??p?#
+				Please enter your guess: 1: pears  1: ???##
 				Please enter your guess: 2: whirs  2: #####
 				Please enter your guess: 3: easel  3: ??##?
 				Please enter your guess: 4: upper  4: #pp?#
@@ -218,7 +217,7 @@ class GameTest {
 				""";
 
 		// when
-		withTextFromSystemIn("lapel", "whirs", "easel", "upper", "abers", "bezel")
+		withTextFromSystemIn("pears", "whirs", "easel", "upper", "abers", "bezel")
 				.execute(() -> results.add(game.start()));
 
 		// then
@@ -230,27 +229,26 @@ class GameTest {
 	public void testInvalidGuess_DoesNotIncreaseTurnCounter() throws Exception {
 		// given
 		List<Boolean> results = new ArrayList<>();
-		wordList = List.of("apple", "lapel", "whirs", "easel", "upper", "abers", "bezel");
 
 		game.setTries(2);
-		game.setWordList(wordList);
+		game.setDictionary(dictionary);
 
 		String message = """
 				You have 2 tries to guess the target word.
-				Please enter your guess: 1: lapel  1: ??p?#
+				Please enter your guess: 1: pears  1: ???##
 				Please enter your guess: 2: whirs  2: #####
 				""";
 
 		String errMessage = "Please enter a word of 5 letters: ";
 
 		// when
-		withTextFromSystemIn("lapel", "banana", "whirs")
+		withTextFromSystemIn("pears", "banana", "whirs")
 				.execute(() -> results.add(game.start()));
 
 		// then
 		results.forEach(Assertions::assertFalse);
 		assertEquals(3, game.getRound());
-		assertEquals(Set.of("whirs", "lapel"), game.getGuesses());
+		assertEquals(Set.of("whirs", "pears"), game.getGuesses());
 		assertEquals(message, outContent.toString());
 		assertEquals(errMessage, errContent.toString());
 	}

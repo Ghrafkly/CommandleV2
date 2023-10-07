@@ -21,7 +21,7 @@ import java.util.*;
  *     <li>targetWord - the word that the user is trying to guess</li>
  *     <li>wordGenerator - the {@link WordGenerator} used to generate the target word </li>
  *     <li>game - the {@link Game} that is currently being played </li>
- *     <li>wordList - the list of words that are used for generating targetWords and to validate user guesses</li>
+ *     <li>dictionary - the list of words that are used for generating targetWords and to validate user guesses</li>
  *     <li>sessionTargets - the list of words that have been used as a target word in the current session</li>
  * </ol>
  *
@@ -33,7 +33,7 @@ public class Commandle {
 	private static final int MAX_TRIES = 6;
 
 	private String targetWord;
-	private List<String> wordList = new ArrayList<>();
+	private List<String> dictionary = new ArrayList<>();
 	private Set<String> sessionTargets = new HashSet<>();
 	private Game game;
 	@Getter(AccessLevel.NONE)
@@ -48,7 +48,7 @@ public class Commandle {
 	 */
 	protected void run(String[] args) {
 		if (wordGenerator == null) {
-			wordGenerator = new WordGenerator(getWordList(), sessionTargets);
+			wordGenerator = new WordGenerator(getDictionary(), sessionTargets);
 		}
 
 		if (args.length > 0) {
@@ -69,7 +69,7 @@ public class Commandle {
 	}
 
 	/**
-	 * Loads the dictionary file into wordList
+	 * Loads the dictionary file into dictionary list
 	 */
 	protected void loadDictionary(String filePath) throws IOException {
 		FileReader fr = new FileReader(filePath);
@@ -78,14 +78,14 @@ public class Commandle {
 
 		while (line != null) {
 			String word = line.trim().toLowerCase();
-			wordList.add(word);
+			dictionary.add(word);
 			line = br.readLine();
 		}
 	}
 
 	protected void setTargetWord(String[] args) {
 		String word = args[0].trim().toLowerCase();
-		if (getWordList().contains(word)) {
+		if (getDictionary().contains(word)) {
 			targetWord = wordGenerator.generateTargetWord(word);
 		} else {
 			log.error(String.format("Word [%s] is not in the game dictionary. Game will now exit", word));
@@ -108,7 +108,7 @@ public class Commandle {
 	 */
 	protected void startGame() {
 		if (game == null) {
-			game = new Game(targetWord, wordList, MAX_TRIES);
+			game = new Game(targetWord, dictionary, MAX_TRIES);
 		}
 
 		messages(game.start() ? "win" : "lose");
