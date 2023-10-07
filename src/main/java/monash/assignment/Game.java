@@ -134,17 +134,29 @@ public class Game {
 			targetLetterCount.put(c, targetLetterCount.getOrDefault(c, 0) + 1);
 		}
 
+		Map<Character, Integer> guessLetterCount = new HashMap<>();
+		for (char c : guess.toCharArray()) {
+			guessLetterCount.put(c, guessLetterCount.getOrDefault(c, 0) + 1);
+		}
+
 		for (int i = 0; i < guess.length(); i++) {
 			char c = guess.charAt(i);
 			if (c == targetWord.charAt(i)) {
 				result.append(c);
+				targetLetterCount.computeIfPresent(c, (k, v) -> v - 1);
 			} else if (targetLetterCount.containsKey(c) && targetLetterCount.get(c) > 0) {
-				result.append("?");
+				if (guessLetterCount.get(c) > targetLetterCount.get(c)) {
+					result.append("#");
+				} else {
+					result.append("?");
+					targetLetterCount.computeIfPresent(c, (k, v) -> v - 1);
+				}
 			} else {
 				result.append("#");
 			}
 
-			targetLetterCount.computeIfPresent(c, (k, v) -> v - 1);
+			guessLetterCount.computeIfPresent(c, (k, v) -> v - 1);
+
 		}
 
 		return result.toString();

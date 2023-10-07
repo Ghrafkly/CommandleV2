@@ -28,7 +28,6 @@ import java.util.*;
  */
 @Data
 public class Commandle {
-	private static final Logger log = LogManager.getLogger(Commandle.class);
 
 	private static final int MAX_TRIES = 6;
 
@@ -58,14 +57,10 @@ public class Commandle {
 		}
 
 		if (targetWord != null) {
-			log.info(String.format("Target word is [%s]", targetWord));
 			sessionTargets.add(targetWord);
 
 			startGame();
 		}
-
-
-		log.info("Exiting Commandle");
 	}
 
 	/**
@@ -88,12 +83,11 @@ public class Commandle {
 		if (getDictionary().contains(word)) {
 			targetWord = wordGenerator.generateTargetWord(word);
 		} else {
-			log.error(String.format("Word [%s] is not in the game dictionary. Game will now exit", word));
+			System.err.printf("Word [%s] is not in the game dictionary. Game will now exit%n", word);
 		}
 	}
 
 	protected void setTargetWord() {
-		log.info("No word provided. Generating random target word");
 		targetWord = wordGenerator.generateTargetWord();
 	}
 
